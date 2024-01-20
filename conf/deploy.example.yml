@@ -1,0 +1,19 @@
+mysql:
+  db_name: ""
+  ip: ""
+  port: 3306
+  username: ""
+  password: ""
+
+redis:
+  ip: ""
+  port: 6379
+  password: ""
+  db: 0
+
+baidu:
+  app_key: ""
+  app_secret: ""
+
+chatgpt:
+  api_key: ""
