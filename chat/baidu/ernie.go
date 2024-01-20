@@ -9,9 +9,35 @@ import (
 	"net/http"
 	"time"
 	"wechat_robot/chat/common"
-	"wechat_robot/config"
 	"wechat_robot/logrus"
+	"wechat_robot/redis"
 )
+
+func init() {
+	ctx := context.Background()
+
+	accessInfo, err := refreshToken(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	setAccassInfo(accessInfo)
+
+	go func() {
+		timer := time.NewTimer(time.Duration(accessInfo.ExpiresIn) * time.Second)
+		for range timer.C {
+			accessInfo, err := refreshToken(ctx)
+			if err != nil {
+				timer.Reset(time.Second)
+				continue
+			}
+
+			setAccassInfo(accessInfo)
+			timer.Reset(time.Duration(accessInfo.ExpiresIn) * time.Second)
+			logrus.GetLogger().Info("refresh token successfully")
+		}
+	}()
+}
 
 var accessInfo *AppAccessInfo
 
@@ -27,31 +53,7 @@ func getAccessToken() string {
 	return accessInfo.AccessToken
 }
 
-func init() {
-	accessInfo, err := refreshToken()
-	if err != nil {
-		panic(err)
-	}
-
-	setAccassInfo(accessInfo)
-
-	go func() {
-		timer := time.NewTimer(time.Duration(accessInfo.ExpiresIn) * time.Second)
-		for range timer.C {
-			accessInfo, err := refreshToken()
-			if err != nil {
-				timer.Reset(time.Second)
-				continue
-			}
-
-			setAccassInfo(accessInfo)
-			timer.Reset(time.Duration(accessInfo.ExpiresIn) * time.Second)
-			logrus.GetLogger().Info("refresh token successfully")
-		}
-	}()
-}
-
-func refreshToken() (*AppAccessInfo, error) {
+func refreshToken(ctx context.Context) (*AppAccessInfo, error) {
 	httpClient := &http.Client{}
 	req, err := http.NewRequest(http.MethodGet, accessUrl, nil)
 	if err != nil {
@@ -59,8 +61,8 @@ func refreshToken() (*AppAccessInfo, error) {
 	}
 
 	param := req.URL.Query()
-	param.Set("client_id", config.GetBaidu().AppKey)
-	param.Set("client_secret", config.GetBaidu().AppSecret)
+	param.Set("client_id", redis.GetErnieAppKey(ctx))
+	param.Set("client_secret", redis.GetErnieAppSecret(ctx))
 	req.URL.RawQuery = param.Encode()
 
 	resp, err := httpClient.Do(req)

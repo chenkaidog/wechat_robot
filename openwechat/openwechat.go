@@ -9,7 +9,7 @@ import (
 	"github.com/skip2/go-qrcode"
 )
 
-func Init() {
+func Start() {
 	for {
 		newRobot()
 	}

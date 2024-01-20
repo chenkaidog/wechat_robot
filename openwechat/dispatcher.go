@@ -17,7 +17,7 @@ func newDispatcher() *openwechat.MessageMatchDispatcher {
 			return
 		}
 
-		ctx := context.Background()
+		ctx := logrus.Newcontext(context.Background(), msg.MsgId)
 
 		msg.WithContext(ctx)
 		logrus.GetLogger().CtxInfof(ctx, "receive msg: %s", msg.Content)

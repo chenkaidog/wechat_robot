@@ -12,6 +12,7 @@ import (
 )
 
 const defaultSkip = 2
+
 var defaultLogger *logrusLogger
 
 func init() {
@@ -37,6 +38,7 @@ func NewLogrusLogger() *logrusLogger {
 
 	l.logger.SetOutput(newOutput())
 	l.logger.SetLevel(getLogLevel())
+	l.logger.AddHook(newLogrusHook())
 
 	return l
 }
@@ -45,8 +47,6 @@ type logrusLogger struct {
 	logger      *logrus.Logger
 	currentPath string
 }
-
-
 
 func (l *logrusLogger) newEntry() *logrus.Entry {
 	_, file, line, ok := runtime.Caller(defaultSkip)

@@ -25,7 +25,7 @@ func GetChatGPT() ChatGPTApiConf {
 	return serverConf.ChatGPT
 }
 
-func Init() {
+func init() {
 	content, err := os.ReadFile("./conf/deploy.yml")
 	if err != nil {
 		panic(err)

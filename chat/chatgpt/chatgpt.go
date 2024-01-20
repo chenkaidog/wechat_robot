@@ -8,9 +8,13 @@ import (
 	"net/http"
 	"net/url"
 	"wechat_robot/chat/common"
-	"wechat_robot/config"
 	"wechat_robot/logrus"
+	"wechat_robot/redis"
 )
+
+func init() {
+
+}
 
 func NewChatGPTgen(model string) *ChatGPTGen {
 	return &ChatGPTGen{
@@ -91,7 +95,7 @@ func (c *ChatGPTGen) createChat(ctx context.Context, msg, systemContent string, 
 	}
 
 	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Authorization", "Bearer "+config.GetChatGPT().ApiKey)
+	req.Header.Add("Authorization", "Bearer "+redis.GetChatgptApiKey(ctx))
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
