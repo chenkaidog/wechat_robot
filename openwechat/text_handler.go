@@ -55,6 +55,8 @@ func handleText(ctx context.Context, msg *openwechat.Message) {
 			logrus.GetLogger().CtxErrorf(ctx, "newUserMsgFromGroup err: %v", err)
 			return
 		}
+	case sender.IsMP():
+		
 	default:
 		return
 	}
@@ -236,7 +238,7 @@ func (u *userMsg) handleCommand(ctx context.Context) (string, bool) {
 }
 
 func (u *userMsg) loadHistoryMsg(ctx context.Context) ([]*common.Message, error) {
-	results, err := mysql.SelectHistoryMsg(ctx, u.ChatId, 5, -time.Hour*12)
+	results, err := mysql.SelectHistoryMsg(ctx, u.ChatId, 5, -time.Hour)
 	if err != nil {
 		return nil, err
 	}
